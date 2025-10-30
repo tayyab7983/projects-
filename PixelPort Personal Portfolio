@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PixelPort — Personal Portfolio</title>
+  <meta name="description" content="PixelPort — a minimal, animated portfolio template." />
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa7bf; --accent:#ff8c00; --glass: rgba(255,255,255,0.05);
+      --glass-2: rgba(255,255,255,0.03);
+      --radius:14px;
+      --max-width:1100px;
+      --ff: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#071428 0%, var(--bg) 60%);
+      color:#e6eef8; font-family:var(--ff); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+    }
+    a{color:inherit; text-decoration:none}
+
+    .wrap{max-width:var(--max-width); margin:40px auto; padding:28px;}
+    header{display:flex; align-items:center; justify-content:space-between; gap:20px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ff4f00);display:flex;align-items:center;justify-content:center;font-weight:700;color:#012;box-shadow:0 6px 18px rgba(8,20,40,0.6)}
+    nav{display:flex;gap:16px}
+    nav a{padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600;font-size:14px}
+    nav a.active{background:var(--glass); color:var(--accent)}
+    .cta{padding:10px 14px;background:linear-gradient(90deg,#ff8c00,#ff4f00);color:#012;border-radius:12px;font-weight:700}
+
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:center;padding:40px 0}
+    @media (max-width:980px){.hero{grid-template-columns:1fr;}.wrap{padding:20px}}
+
+    .intro h1{font-size:clamp(28px,4vw,44px);margin:0 0 12px}
+    .intro p{color:var(--muted);margin:0 0 18px;max-width:62ch}
+    .actions{display:flex;gap:12px}
+    .btn{padding:12px 16px;border-radius:12px;background:var(--accent);color:#012;font-weight:700}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+
+    .profile-card{background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));padding:20px;border-radius:16px;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .avatar{width:100%;height:300px;border-radius:12px; background:linear-gradient(135deg,#1e293b,#0b1220);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted)}
+    .meta{display:flex;gap:12px;align-items:center;margin-top:12px}
+    .chip{padding:8px 10px;background:var(--glass-2);border-radius:10px;color:var(--muted);font-weight:600}
+
+    section{margin-top:48px}
+    .section-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .section-title h2{margin:0;font-size:20px}
+    .projects{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:1100px){.projects{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:700px){.projects{grid-template-columns:1fr}}
+
+    .project{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:14px;transition:transform .35s cubic-bezier(.2,.8,.18,1), box-shadow .35s;cursor:pointer}
+    .project:hover{transform:translateY(-8px);box-shadow:0 14px 40px rgba(2,6,23,0.6)}
+
+    .project .title{font-weight:800;margin-bottom:8px}
+    .project .desc{color:var(--muted);font-size:14px}
+    .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+    .tag{background:rgba(255,140,0,0.08);padding:6px 8px;border-radius:8px;font-weight:600;color:var(--accent);font-size:13px}
+
+    .contact-grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
+    @media (max-width:980px){.contact-grid{grid-template-columns:1fr}}
+
+    form{display:flex;flex-direction:column;gap:12px}
+    input,textarea{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:10px;color:inherit}
+    textarea{min-height:120px;resize:vertical}
+
+    footer{margin-top:56px;padding:28px 0;color:var(--muted);display:flex;justify-content:flex-start;align-items:center;gap:20px;flex-wrap:wrap;}
+
+    .fade-up{opacity:0;transform:translateY(18px);transition:all .6s cubic-bezier(.2,.8,.18,1)}
+    .in-view{opacity:1;transform:none}
+
+    .social-fixed{position:fixed;left:18px;bottom:28px;display:flex;flex-direction:column;gap:8px}
+    .social-fixed a{background:var(--glass);padding:10px;border-radius:12px;font-weight:700;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:6px}
+
+    .center{display:flex;align-items:center;justify-content:center}
+    .small{font-size:13px;color:var(--muted)}
+    a:focus,input:focus,button:focus{outline:2px solid rgba(255,140,0,0.18);outline-offset:3px}
+
+    #certGrid .project {
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    #certGrid .project:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">T</div>
+        <div>
+          <div style="font-weight:800">TAYYAB</div>
+          <div class="small">Front-end Developer</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#home" class="active" data-link>Home</a>
+        <a href="#projects" data-link>Projects</a>
+        <a href="#certificates" data-link>Certificates</a>
+        <a href="#resume" data-link>Resume</a>
+        <a href="#about" data-link>About</a>
+        <a href="#contact" data-link>Contact</a>
+      </nav>
+      <div class="actions">
+        <a class="cta" href="#contact" data-link>Hire Me</a>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero">
+        <div class="intro">
+          <h1 class="fade-up">Hi, I'm <span style="color:var(--accent)">TAYYAB</span>. I build delightful front-end experiences.</h1>
+          <p class="fade-up">I design and develop modern, responsive, and accessible user interfaces with a focus on performance and polished interactions.</p>
+          <div class="actions fade-up" style="margin-top:14px">
+            <a class="btn" href="#projects" data-link>See Projects</a>
+            <a class="btn secondary" href="#about" data-link>About Me</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="section-title">
+          <h2>Selected Projects</h2>
+        </div>
+        <div class="projects">
+          <article class="project fade-up" tabindex="0">
+            <div class="title">ShopNest — eCommerce UI</div>
+            <div class="desc">A minimal product grid and animated cart interactions built with React.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="certificates">
+        <div class="section-title">
+          <h2>Certificates</h2>
+          <div class="small">— Verified achievements & learning milestones</div>
+        </div>
+        <div class="projects" id="certGrid">
+          <article class="project fade-up">
+            <img src='' alt="HTML Certificate" style="width:100%;border-radius:10px;margin-bottom:10px;">
+            <div class="title">HTML & CSS Fundamentals</div>
+            <div class="desc">Certified by Coursera • 2024</div>
+          </article>
+          <article class="project fade-up">
+            <img src="https://via.placeholder.com/400x250.png?text=JavaScript+Certificate" alt="JS Certificate" style="width:100%;border-radius:10px;margin-bottom:10px;">
+            <div class="title">JavaScript Mastery</div>
+            <div class="desc">Issued by Udemy • 2025</div>
+          </article>
+          <article class="project fade-up">
+            <img src="https://via.placeholder.com/400x250.png?text=React+Certificate" alt="React Certificate" style="width:100%;border-radius:10px;margin-bottom:10px;">
+            <div class="title">React Front-End Development</div>
+            <div class="desc">Google Developer Program • 2025</div>
+          </article>
+          <article class="project fade-up">
+            <img src="https://via.placeholder.com/400x250.png?text=Git+Certificate" alt="Git Certificate" style="width:100%;border-radius:10px;margin-bottom:10px;">
+            <div class="title">Version Control with Git</div>
+            <div class="desc">Certified by FreeCodeCamp • 2024</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="resume">
+        <div class="section-title">
+          <h2>Resume</h2>
+          <div class="small">— Overview of my background & skills</div>
+        </div>
+        <div class="profile-card fade-up">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <h3 style="margin:0 0 10px;color:var(--accent)">Personal Info</h3>
+              <p><strong>Name:</strong>TAYYAB</p>
+              <p><strong>Email:</strong>tayab.malik.7983@gmail.com</p>
+              <p><strong>Location:</strong> meerut uttar pardesh</p>
+            </div>
+            <div>
+              <h3 style="margin:0 0 10px;color:var(--accent)">Education</h3>
+              <p><strong> persuing B.Tech in Computer Science and artificial inttelligent </strong><br></p>
+              <p><strong>Intermediate (12th)</strong><br>CBSE Board — 2023</p>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <h3 style="margin:0 0 10px;color:var(--accent)">Skills</h3>
+            <h3>Frontend web development </h3>
+            <div class="tags">
+              <span class="tag">HTML</span>
+              <span class="tag">CSS</span>
+              <span class="tag">JavaScript</span>
+              <span class="tag">React</span>
+              <span class="tag">Tailwind</span>
+              <span class="tag">Git & GitHub</span>
+             
+            </div>
+          </div>
+           <h3 style="margin:0 0 10px;color:var(--accent)"></h3>
+           <h3>APP dvelopment </h3>
+            <div class="tags">
+              <span class="tag">JAVA</span>
+              <span class="tag">kotlin</span>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <h3 style="margin:0 0 10px;color:var(--accent)">Experience & Projects</h3>
+            <ul class="small" style="line-height:1.6;">
+              <li>Developed PixelPort — a personal portfolio with smooth animations.</li>
+              <li>Built ShopNest — a React eCommerce UI with filtering & cart animation.</li>
+              <li>Created ColorVerse — a color palette generator using Canvas API.</li>
+            </ul>
+          </div>
+          <div style="margin-top:24px;text-align:center;">
+            <a href="resume.pdf" target="_blank" class="btn">📄 Download Resume</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="section-title">
+          <h2>Contact</h2>
+        </div>
+        <div class="contact-grid">
+          <form class="fade-up" onsubmit="handleContact(event)">
+            <input required placeholder="Your name" id="c_name" />
+            <input required placeholder="Your email" id="c_email" type="email" />
+            <textarea required placeholder="Message" id="c_message"></textarea>
+            <button class="btn" type="submit">Send Message</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="small">© <span id="year"></span> TAYYAB • PixelPort | Built with  — HTML • CSS • JS</div>
+    </footer>
+
+    <div class="social-fixed">
+      <a href="https://github.com/tayyab7983" target="_blank" rel="noopener">🐙 GitHub</a>
+      <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener">💼 LinkedIn</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{if(en.isIntersecting) en.target.classList.add('in-view');})
+    },{threshold:0.12});
+    document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+
+    function handleContact(e){
+      e.preventDefault();
+      alert('Message preview only — demo mode');
+    }
+  </script>
+</body>
+</html>
