@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Taskify — To‑Do List</title>
+  <meta name="description" content="Taskify — simple, fast todo app with localStorage" />
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa7bf; --accent:#7dd3fc; --ok:#34d399; --danger:#fb7185;
+      --radius:12px; --maxw:900px; --ff:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(180deg,#071428 0%,var(--bg) 60%);color:#e6eef8;font-family:var(--ff);-webkit-font-smoothing:antialiased;padding:28px;display:flex;align-items:center;justify-content:center}
+    .app{width:100%;max-width:var(--maxw)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:var(--radius);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    h1{margin:0;font-size:20px}
+    .meta{color:var(--muted);font-size:13px}
+
+    form{display:flex;gap:8px;margin-top:12px}
+    input[type=text], input[type=date], select{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    button{padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#012;font-weight:700;cursor:pointer}
+    button.clear{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+
+    .controls{display:flex;gap:8px;margin-top:12px;align-items:center}
+    .filters{display:flex;gap:8px}
+    .pill{padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:999px;color:var(--muted);font-weight:600}
+
+    .list{margin-top:16px;display:grid;gap:8px}
+    .task{display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .task .title{flex:1}
+    .task .title.completed{text-decoration:line-through;color:var(--muted)}
+    .badge{padding:6px 8px;border-radius:8px;font-weight:700;font-size:12px}
+    .prio-low{background:rgba(16,185,129,0.08);color:#10b981}
+    .prio-med{background:rgba(59,130,246,0.08);color:#3b82f6}
+    .prio-high{background:rgba(239,68,68,0.08);color:#ef4444}
+
+    .actions{display:flex;gap:6px}
+    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;cursor:pointer;color:var(--muted)}
+
+    .empty{padding:18px;text-align:center;color:var(--muted)}
+
+    footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:13px}
+
+    @media (max-width:640px){form{flex-direction:column} .controls{flex-direction:column;align-items:stretch}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Taskify</h1>
+          <div class="meta">Simple To‑Do • Saves to your browser</div>
+        </div>
+        <div>
+          <button id="exportBtn" title="Export JSON" class="icon-btn">Export</button>
+          <button id="importBtn" title="Import JSON" class="icon-btn">Import</button>
+        </div>
+      </header>
+
+      <form id="taskForm">
+        <input id="taskInput" type="text" placeholder="Add a new task (press Enter)" aria-label="Task description" required />
+        <select id="prioSelect" aria-label="Priority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+        <input id="dateInput" type="date" aria-label="Due date" />
+        <button type="submit">Add</button>
+      </form>
+
+      <div class="controls">
+        <div class="filters">
+          <button data-filter="all" class="pill">All</button>
+          <button data-filter="active" class="pill">Active</button>
+          <button data-filter="completed" class="pill">Completed</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <input id="search" type="text" placeholder="Search tasks" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit" />
+          <button id="clearCompleted" class="clear">Clear Completed</button>
+        </div>
+      </div>
+
+      <div id="taskList" class="list" aria-live="polite"></div>
+
+      <footer>
+        <div id="stats">0 tasks</div>
+        <div class="small">Tip: Drag to reorder (desktop)</div>
+      </footer>
+    </div>
+  </div>
+
+  <input id="fileInput" type="file" accept="application/json" style="display:none">
+
+  <script>
+    // Taskify — single-file app
+    const STORAGE_KEY = 'taskify.tasks.v1';
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let filter = 'all';
+
+    const elems = {
+      form: document.getElementById('taskForm'),
+      input: document.getElementById('taskInput'),
+      prio: document.getElementById('prioSelect'),
+      date: document.getElementById('dateInput'),
+      list: document.getElementById('taskList'),
+      stats: document.getElementById('stats'),
+      search: document.getElementById('search'),
+      fileInput: document.getElementById('fileInput'),
+      exportBtn: document.getElementById('exportBtn'),
+      importBtn: document.getElementById('importBtn'),
+      clearCompleted: document.getElementById('clearCompleted'),
+    };
+
+    // Utilities
+    const uid = ()=>Math.random().toString(36).slice(2,9);
+    const save = ()=>{ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); render(); }
+
+    // Create task
+    elems.form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const text = elems.input.value.trim(); if(!text) return;
+      const t = { id: uid(), text, prio: elems.prio.value, due: elems.date.value || null, done:false, created:Date.now() };
+      tasks.unshift(t);
+      elems.input.value=''; elems.date.value=''; elems.prio.value='medium';
+      save();
+    });
+
+    // Render
+    function render(){
+      const q = elems.search.value.trim().toLowerCase();
+      const filtered = tasks.filter(t=>{
+        if(filter==='active' && t.done) return false;
+        if(filter==='completed' && !t.done) return false;
+        if(q && !t.text.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      elems.list.innerHTML='';
+      if(filtered.length===0){ elems.list.innerHTML='<div class="empty">No tasks — add your first task!</div>'; }
+      filtered.forEach(t=>{
+        const item = document.createElement('div'); item.className='task'; item.draggable=true; item.dataset.id=t.id;
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = t.done; cb.addEventListener('change', ()=>{ t.done = cb.checked; save(); });
+        const title = document.createElement('div'); title.className='title' + (t.done? ' completed':''); title.textContent = t.text;
+        const meta = document.createElement('div'); meta.style.fontSize='12px'; meta.style.color='var(--muted)';
+        meta.textContent = t.due? ('Due: ' + t.due) : '';
+        const pr = document.createElement('div'); pr.className='badge ' + (t.prio==='low'?'prio-low':t.prio==='medium'?'prio-med':'prio-high'); pr.textContent = t.prio.toUpperCase();
+        const actions = document.createElement('div'); actions.className='actions';
+        const edit = document.createElement('button'); edit.className='icon-btn'; edit.title='Edit'; edit.textContent='✏️'; edit.addEventListener('click', ()=>editTask(t.id));
+        const del = document.createElement('button'); del.className='icon-btn'; del.title='Delete'; del.textContent='🗑️'; del.addEventListener('click', ()=>{ if(confirm('Delete task?')){ tasks = tasks.filter(x=>x.id!==t.id); save(); }});
+        actions.append(edit, del);
+        const left = document.createElement('div'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='12px'; left.append(cb, title);
+        const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.alignItems='flex-end'; right.style.gap='6px'; right.append(pr, meta, actions);
+        item.append(left, right);
+        // drag events
+        item.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', t.id); item.style.opacity='0.5'; });
+        item.addEventListener('dragend', ()=>{ item.style.opacity='1'; });
+        item.addEventListener('dragover', e=>{ e.preventDefault(); item.style.border='1px dashed rgba(255,255,255,0.06)'; });
+        item.addEventListener('dragleave', ()=>{ item.style.border=''; });
+        item.addEventListener('drop', e=>{ e.preventDefault(); const fromId = e.dataTransfer.getData('text/plain'); reorder(fromId, t.id); item.style.border=''; });
+        elems.list.appendChild(item);
+      });
+      elems.stats.textContent = `${tasks.length} task${tasks.length!==1?'s':''} • ${tasks.filter(t=>t.done).length} completed`;
+    }
+
+    function reorder(fromId, toId){
+      const fromIdx = tasks.findIndex(x=>x.id===fromId); const toIdx = tasks.findIndex(x=>x.id===toId);
+      if(fromIdx<0||toIdx<0||fromIdx===toIdx) return;
+      const [m] = tasks.splice(fromIdx,1); tasks.splice(toIdx,0,m); save();
+    }
+
+    function editTask(id){
+      const t = tasks.find(x=>x.id===id); if(!t) return;
+      const newText = prompt('Edit task', t.text); if(newText===null) return; t.text = newText.trim()||t.text; save();
+    }
+
+    // Filters
+    document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click', ()=>{ document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); filter = b.dataset.filter; render(); }));
+
+    // Search
+    elems.search.addEventListener('input', ()=>render());
+
+    // Clear completed
+    elems.clearCompleted.addEventListener('click', ()=>{ if(confirm('Remove all completed tasks?')){ tasks = tasks.filter(t=>!t.done); save(); }});
+
+    // Export / Import
+    elems.exportBtn.addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(tasks, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'taskify-export.json'; a.click(); URL.revokeObjectURL(url);
+    });
+    elems.importBtn.addEventListener('click', ()=>{ elems.fileInput.click(); });
+    elems.fileInput.addEventListener('change', e=>{
+      const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=>{
+        try{ const data = JSON.parse(r.result); if(Array.isArray(data)){ tasks = data; save(); alert('Import successful'); } else alert('Invalid file'); }
+        catch(err){ alert('Invalid JSON file'); }
+      }; r.readAsText(f);
+    });
+
+    // Keyboard: Enter submits, / focuses search
+    document.addEventListener('keydown', e=>{
+      if(e.key === '/') { e.preventDefault(); elems.search.focus(); }
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
