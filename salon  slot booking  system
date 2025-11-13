@@ -1,0 +1,632 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Salon — Book Your Style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-start:#0d0c0c; --bg-end:#B49CFF; --accent:#6B21A8; --muted:#6b7280;
+    --card-bg: rgba(233, 216, 216, 0.95); --glass: rgba(255,255,255,0.18);
+    --success:#059669; --danger:#dc2626; --shadow: 0 12px 40px rgba(11,8,30,0.18);
+    --radius:14px; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; min-height:100vh; background:linear-gradient(135deg,var(--bg-start),var(--bg-end)); -webkit-font-smoothing:antialiased; color:#111}
+  a{color:inherit; text-decoration:none}
+  /* NAVBAR */
+  .nav{
+    position:sticky; top:0; z-index:60; backdrop-filter: blur(6px);
+    background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.00));
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .container{max-width:1140px; margin:0 auto; padding:16px;}
+  .nav-inner{display:flex;align-items:center;gap:18px;justify-content:space-between}
+  .brand{font-weight:800;color:#fff;letter-spacing:-0.2px}
+  .nav-links{display:flex;gap:12px;align-items:center}
+  .nav-links a{color:rgba(255,255,255,0.95);padding:8px 10px;border-radius:8px;font-weight:600;cursor:pointer}
+  .nav-links a.active{background:rgba(218, 4, 4, 0.12); color:white}
+  .cta-btn{background:rgb(162, 66, 66);color:var(--accent);padding:8px 12px;border-radius:10px;font-weight:800;cursor:pointer}
+  .hamburger{display:none;background:transparent;border:1px solid rgba(255,255,255,0.12);padding:8px;border-radius:8px;color:white}
+
+  /* HERO */
+  .hero{padding:64px 16px 36px;}
+  .hero-grid{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;max-width:1140px;margin:0 auto}
+  .hero-card{background:rgba(255,255,255,0.06); padding:28px;border-radius:18px;color:white;box-shadow:var(--shadow)}
+  .hero h1{font-size:34px;margin:0 0 8px 0;font-weight:800}
+  .hero p{margin:0 0 18px 0;opacity:0.9}
+  .hero .hero-cta{display:flex;gap:12px}
+  .small-card{background:var(--card-bg);padding:16px;border-radius:12px}
+
+  /* SECTIONS */
+  section{padding:48px 16px}
+  .section-title{max-width:1140px;margin:0 auto 18px;color:#111;font-weight:800;font-size:20px}
+  .content{max-width:1140px;margin:0 auto;display:block}
+
+  /* About */
+  .about-grid{display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:center}
+
+  /* Services */
+  .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .service-card{background:var(--card-bg);padding:18px;border-radius:12px;box-shadow:0 8px 26px rgba(11,8,30,0.06)}
+  .price{font-weight:800;color:var(--accent)}
+
+  /* Booking (we embed the booking UI) */
+  .booking-wrap{background:transparent;padding:12px}
+  /* reuse the booking styles from earlier but confined to #booking scope */
+  #booking .card { width:100%; border-radius:18px; overflow:hidden; display:grid; grid-template-columns:1fr 1fr; box-shadow:0 18px 50px rgba(11,8,30,0.18); background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); }
+  #booking .left{padding:22px;color:#fff}
+  #booking .right{padding:22px;background:var(--card-bg)}
+  /* rest of the booking inner styles are included inline in the booking section below to avoid duplication */
+
+  /* Login / Signup modals */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:80}
+  .modal{width:420px;background:var(--card-bg);padding:18px;border-radius:12px;box-shadow:var(--shadow)}
+  .modal h3{margin:0 0 12px 0}
+
+  /* Contact */
+  .contact-grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
+
+  /* Footer */
+  footer{padding:28px 16px;color:#fff}
+
+  /* Responsive */
+  @media (max-width:980px){
+    .hero-grid, .about-grid, .contact-grid{grid-template-columns:1fr}
+    .services-grid{grid-template-columns:repeat(2,1fr)}
+    .nav-links{display:none}
+    .hamburger{display:block}
+    #booking .card{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    .services-grid{grid-template-columns:1fr}
+  }
+
+  /* smooth scroll behavior */
+  html { scroll-behavior: smooth; }
+  /* little anims */
+  .fade { opacity:0; transform:translateY(8px); transition: all .5s cubic-bezier(.2,.9,.3,1); }
+  .fade.show { opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+
+<nav class="nav" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="brand">✨ Salon</div>
+      <div class="muted" style="color:rgba(255,255,255,0.85);font-weight:600">Style • Groom • Shine</div>
+    </div>
+
+ <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary"> 
+      <a data-target="home" class="nav-link active">Home</a>
+      <a data-target="about" class="nav-link">About</a>
+      <a data-target="services" class="nav-link">Services</a>
+      <a data-target="booking slot.html" class="nav-link">Booked slot</a>
+      <a data-target="contact" class="nav-link">Location</a>
+      <a id="loginBtn" class="nav-link">Login</a>
+      <a id="signupBtn" class="cta-btn">Sign up</a>
+    </div>
+
+    <button class="hamburger" id="hamb">☰</button>
+  </div>
+</nav>
+
+<!-- HERO / HOME -->
+<header id="home" class="hero" aria-label="Home section" >
+  <div class="hero-grid"> 
+    <div class="hero-card fade show">
+      <h1>Get the look you deserve — fast bookings, expert stylists.</h1>
+      <p>Top-rated barbershop experience. Book online, meet your stylist, walk out confident.</p>
+      <div class="hero-cta">
+        <a href="#booking" class="cta-btn" style="padding:12px 16px">Book Now</a>
+        <button onclick="openModal('signup')" class="btn-lite" style="background:transparent;border-radius:10px;padding:12px 14px;color:white;border:1px solid rgba(223, 137, 137, 0.12)">Get Offers</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <div class="small-card" style="display:flex;gap:12px;align-items:center">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,#fff,#fff38c);display:grid;place-items:center">✂️</div>
+          <div>
+            <div style="font-weight:800">Experienced Stylists</div>
+            <div style="font-size:13px;color:rgba(239, 41, 41, 0.9)">Craft & precision</div>
+          </div>
+        </div>
+        <div class="small-card" style="display:flex;gap:12px;align-items:center">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,#fff,#b3f0ff);display:grid;place-items:center">⏱</div>
+          <div>
+            <div style="font-weight:800">Fast Service</div>
+            <div style="font-size:13px;color:rgba(239, 41, 41, 0.9)">On-time bookings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="small-card" style="align-self:start">
+      <div style="font-weight:800;margin-bottom:10px">Today's openings</div>
+      <div id="heroSlots" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+      <div style="margin-top:12px;font-size:13px;color:#333">Tap Book Now to reserve a slot.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ABOUT -->
+<section id="about">
+  <h3 class="section-title">About</h3>
+  <div class="content about-grid">
+    <div class="fade show">
+      <p style="font-size:16px;line-height:1.5">
+        We’re a small team of creative stylists focused on modern haircuts, traditional shaves, and precise grooming.
+        Our studio blends comfort, style, and speed — a place where you’re treated like the main character.
+      </p>
+      <ul style="margin-top:12px;color:var(--muted)">
+        <li>Experienced professionals</li>
+        <li>Quality products</li>
+        <li>Relaxed atmosphere</li>
+      </ul>
+    </div>
+    <div style="display:grid;gap:8px">
+      <div style="background:var(--card-bg);padding:12px;border-radius:12px;box-shadow:var(--shadow)">
+        <strong>Hours</strong>
+        <div style="color:var(--muted)">Mon–Sat: 9:00 — 18:00</div>
+      </div>
+      <div style="background:var(--card-bg);padding:12px;border-radius:12px;box-shadow:var(--shadow)">
+        <strong>Team</strong>
+        <div style="color:var(--muted)">Alex • Maria • Raj</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <h3 class="section-title">Services</h3>
+  <div class="content services-grid">
+    <div class="service-card">
+      <div style="font-weight:700">Haircut</div>
+      <div style="color:var(--muted);margin-top:6px">Classic & modern cuts</div>
+      <div style="margin-top:12px" class="price">$15</div>
+    </div>
+    <div class="service-card">
+      <div style="font-weight:700">Shave</div>
+      <div style="color:var(--muted);margin-top:6px">Hot towel + precision</div>
+      <div style="margin-top:12px" class="price">$10</div>
+    </div>
+    <div class="service-card">
+      <div style="font-weight:700">Coloring</div>
+      <div style="color:var(--muted);margin-top:6px">Custom tones & highlights</div>
+      <div style="margin-top:12px" class="price">$45</div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING - integrated booking UI -->
+<section id="booking">
+  <h3 class="section-title">Book Slot</h3>
+  <div class="content booking-wrap">
+    <!-- START: Booking UI (adapted from your booking page) -->
+    <div class="card" id="bookingCard">
+      <!-- LEFT -->
+      <div class="left">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:20px;font-weight:800">Book Your Appointment</div>
+          <div style="opacity:0.9">Pick a date & slot</div>
+        </div>
+
+        <div style="margin-top:12px;background:rgba(255,255,255,0.06);padding:12px;border-radius:10px">
+          <label style="display:block;color:rgba(255,255,255,0.95);margin-bottom:6px">Choose a date</label>
+          <input id="date" type="date" style="padding:8px;border-radius:8px;border:none;outline:none;background:transparent;color:white;width:100%" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+          <div style="background:rgba(255,255,255,0.04);padding:12px;border-radius:10px">
+            <label style="color:rgba(255,255,255,0.95);display:block;margin-bottom:8px">Service</label>
+            <div id="servicesList" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.04);padding:12px;border-radius:10px">
+            <label style="color:rgba(255,255,255,0.95);display:block;margin-bottom:8px">Stylist</label>
+            <div id="stylistsList" style="display:flex;gap:8px"></div>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.04);padding:12px;border-radius:10px;margin-top:12px">
+          <label style="color:rgba(255,255,255,0.95);display:block;margin-bottom:8px">Available Time Slots</label>
+          <div id="slots" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:220px;overflow:auto"></div>
+          <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.85)">Tip: disabled slots are unavailable for demo.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
+          <button id="topBtn" style="padding:8px 12px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:white">Back to top</button>
+          <button id="toFormBtnLeft" style="margin-left:auto;padding:8px 14px;border-radius:10px;background:white;color:var(--accent;font-weight:800)">Proceed to Details</button>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:18px;font-weight:800">Appointment Details</div>
+          <div style="color:var(--muted)" id="todayLabel"></div>
+        </div>
+
+        <form id="detailsForm" style="display:flex;flex-direction:column;gap:10px" onsubmit="return false;">
+          <div style="display:flex;gap:8px">
+            <input id="inputName" placeholder="Full name" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eee" />
+            <input id="inputPhone" placeholder="Phone number" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eee" />
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <select id="serviceSelect" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eee"></select>
+            <select id="stylistSelect" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eee"></select>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="min-width:110px">Selected slot</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="padding:6px 10px;border-radius:999px;background:#f3f4f6;border:1px solid #e6e9ef;font-weight:700" id="selectedSlotDisplay">No slot</div>
+              <button type="button" id="clearSlot" style="padding:6px 10px;border-radius:999px;background:white;border:1px solid #eee">Clear</button>
+            </div>
+          </div>
+
+          <textarea id="notes" placeholder="Notes (e.g., preferences)" style="padding:10px;border-radius:8px;border:1px solid #eee;min-height:80px"></textarea>
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:13px">Estimated price:</div>
+            <div style="font-size:20px;font-weight:800;margin-left:auto" id="priceDisplay">$0</div>
+          </div>
+
+          <div style="display:flex;gap:10px">
+            <button id="confirmBtn" style="flex:1;padding:10px;border-radius:10px;background:var(--accent);color:white;font-weight:800">Confirm & Send</button>
+            <button id="resetBtn" style="padding:10px;border-radius:10px;border:1px solid #d0d0d0;background:white">Reset</button>
+          </div>
+        </form>
+
+        <div style="margin-top:8px;padding:10px;border-radius:10px;border:1px solid #eef0f3">
+          <h4 style="margin:0 0 8px 0">Booking summary</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;color:#333">
+            <div style="color:#666">Name</div><div id="s_name">-</div>
+            <div style="color:#666">Phone</div><div id="s_phone">-</div>
+            <div style="color:#666">Date</div><div id="s_date">-</div>
+            <div style="color:#666">Time</div><div id="s_time">-</div>
+            <div style="color:#666">Service</div><div id="s_service">-</div>
+            <div style="color:#666">Stylist</div><div id="s_stylist">-</div>
+            <div style="color:#666">Price</div><div id="s_price">-</div>
+          </div>
+        </div>
+
+        <div id="confirmation" style="display:none;padding:12px;border-radius:10px;background:#ecfdf5;border:1px solid #bbf7d0;margin-top:8px">
+          <strong style="color:#065f46">Booked (demo)</strong>
+          <div style="font-size:13px;color:#065f46;margin-top:6px">Booking JSON downloaded. Replace confirm handler with your API.</div>
+          <div style="margin-top:8px"><button id="closeConfirm" style="padding:8px;border-radius:8px;border:1px solid #ddd;background:white">Close</button></div>
+        </div>
+
+        <!-- <div style="font-size:12px;color:#444;margin-top:auto">This UI is frontend-only — availability & pricing are mocked for demo. Connect to backend to persist bookings and fetch real-time availability.</div>
+      </div> -->
+    </div>
+    <!-- END: Booking UI -->
+  </div>
+</section>
+
+<!-- CONTACT / LOCATION -->
+<section id="contact">
+  <h3 class="section-title">Location & Contact</h3>
+  <div class="content contact-grid">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:var(--card-bg);padding:12px;border-radius:12px;box-shadow:var(--shadow)">
+        <strong>Address</strong>
+        <div style="color:var(--muted);margin-top:6px">123 Style Street, Cityname</div>
+      </div>
+      <div style="background:var(--card-bg);padding:12px;border-radius:12px;box-shadow:var(--shadow)">
+        <strong>Contact</strong>
+        <div style="color:var(--muted);margin-top:6px">Phone: +91 98765 43210</div>
+        <div style="color:var(--muted)">Email: hello@salon.example</div>
+      </div>
+    </div>
+
+    <div style="border-radius:12px;overflow:hidden;box-shadow:var(--shadow)">
+      <!-- Replace src with your actual Google Maps embed URL if desired -->
+      <iframe
+        title="Salon location"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.01913865824!2d-122.41941508468119!3d37.7749297797591!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDUyJzMwLjAiTiAxMjLCsDI1JzA1LjQiVw!5e0!3m2!1sen!2sus!4v1697040000000!5m2!1sen!2sus"
+        width="100%" height="260" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center">
+    <div style="color:rgba(1, 1, 1, 0.95)"><strong>Salon booking website  developed by TAYYAB MALIK</strong> — © <span id="year"></span></div>
+    <div style="color:rgba(15, 14, 14, 0.85)">Follow us: Instagram • Facebook</div>
+  </div>
+</footer>
+
+<!-- LOGIN / SIGNUP modals -->
+<div class="modal-back" id="modalBack" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" id="modalBox">
+    <h3 id="modalTitle">Login</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <input id="modalEmail" placeholder="Email or phone" style="padding:8px;border-radius:8px;border:1px solid #e6e6e9" />
+      <input id="modalPass" placeholder="Password" type="password" style="padding:8px;border-radius:8px;border:1px solid #e6e6e9" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="modalAction" style="flex:1;padding:10px;border-radius:8px;background:var(--accent);color:white;font-weight:800">Login</button>
+        <button onclick="closeModal()" style="padding:10px;border-radius:8px;background:white;border:1px solid #ddd">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const navLinks = document.querySelectorAll('.nav-link');
+function setActive(targetId){
+  navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === targetId));
+}
+navLinks.forEach(a=>{
+  a.addEventListener('click', ()=> {
+    const t = a.dataset.target;
+    if (t) {
+      document.getElementById(t).scrollIntoView({behavior:'smooth', block:'start'});
+      setActive(t);
+    }
+  });
+});
+document.getElementById('hamb').addEventListener('click', ()=>{
+  const links = document.getElementById('navLinks');
+  links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+});
+
+/* Modal */
+function openModal(mode = 'login'){
+  document.getElementById('modalBack').style.display = 'flex';
+  document.getElementById('modalTitle').textContent = mode === 'signup' ? 'Sign up' : 'Login';
+  document.getElementById('modalAction').textContent = mode === 'signup' ? 'Create account' : 'Login';
+  document.getElementById('modalBack').setAttribute('aria-hidden','false');
+  document.getElementById('modalEmail').focus();
+}
+function closeModal(){
+  document.getElementById('modalBack').style.display = 'none';
+  document.getElementById('modalBack').setAttribute('aria-hidden','true');
+}
+document.getElementById('loginBtn').addEventListener('click', ()=> openModal('login'));
+document.getElementById('signupBtn').addEventListener('click', ()=> openModal('signup'));
+document.getElementById('modalBack').addEventListener('click', (e)=> { if (e.target === e.currentTarget) closeModal(); });
+
+/* small UI pieces */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* HERO: show a few available slots (read-only demo) */
+function heroSlotsPopulate(slots) {
+  const box = document.getElementById('heroSlots');
+  box.innerHTML = '';
+  slots.slice(0,6).forEach(s=>{
+    const el = document.createElement('div');
+    el.textContent = s; el.style.padding='6px'; el.style.background='white'; el.style.borderRadius='8px'; el.style.fontWeight='700'; el.style.color='var(--accent)';
+    box.appendChild(el);
+  });
+}
+
+/* -------------------------
+  Booking logic (adapted from the standalone booking file)
+------------------------- */
+const servicesList = [
+  { id: 'haircut', name: 'Haircut', duration: 30, price: 15 },
+  { id: 'shave', name: 'Shave', duration: 20, price: 10 },
+  { id: 'color', name: 'Coloring', duration: 60, price: 45 },
+  { id: 'trim', name: 'Beard Trim', duration: 15, price: 8 },
+];
+const stylists = [
+  { id: 'alex', name: 'Alex' },
+  { id: 'maria', name: 'Maria' },
+  { id: 'raj', name: 'Raj' },
+];
+
+const state = {
+  date: null,
+  selectedService: servicesList[0].id,
+  selectedStylist: stylists[0].id,
+  selectedSlot: null,
+  name: '',
+  phone: '',
+  notes: '',
+};
+
+const $ = id => document.getElementById(id);
+
+function formatTime(h,m){ return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function isSlotUnavailable(date, stylistId, slot){
+  const key = (date || '') + '|' + (stylistId || '') + '|' + slot;
+  let hash = 0;
+  for (let i=0;i<key.length;i++) hash = (hash*31 + key.charCodeAt(i)) % 1000;
+  return hash % 7 === 0;
+}
+function generateSlots(){
+  const arr = [];
+  const start = 9, end = 18;
+  for (let h=start; h<end; h++){
+    for (let m of [0,30]) arr.push(formatTime(h,m));
+  }
+  return arr;
+}
+const slots = generateSlots();
+
+/* render inside booking UI */
+function renderBookingServices(){
+  const container = document.getElementById('servicesList');
+  container.innerHTML = '';
+  servicesList.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.className = 'service-btn';
+    btn.style.background='transparent'; btn.style.border='1px solid rgba(255,255,255,0.06)'; btn.style.color='white';
+    if (state.selectedService === s.id) { btn.style.background='rgba(255,255,255,0.12)'; }
+    btn.innerHTML = `<div style="text-align:left"><div style="font-weight:700">${s.name}</div><div style="font-size:12px;opacity:.9">${s.duration} mins</div></div><div style="font-weight:700">$${s.price}</div>`;
+    btn.onclick = ()=>{ state.selectedService = s.id; state.selectedSlot=null; updateBookingUI(); };
+    container.appendChild(btn);
+  });
+
+  const sel = $('serviceSelect');
+  sel.innerHTML = '';
+  servicesList.forEach(s => {
+    const opt = document.createElement('option'); opt.value = s.id; opt.textContent = `${s.name} — ${s.duration}m`;
+    if (state.selectedService===s.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderBookingStylists(){
+  const container = document.getElementById('stylistsList');
+  container.innerHTML = '';
+  stylists.forEach(st=>{
+    const btn = document.createElement('button');
+    btn.className='sty-btn'; btn.style.padding='8px 12px'; btn.style.borderRadius='999px';
+    btn.style.background='rgba(255,255,255,0.08)';
+    if (state.selectedStylist === st.id) { btn.style.background='white'; btn.style.color='var(--accent)'; btn.style.transform='translateY(-3px)'; }
+    btn.textContent = st.name;
+    btn.onclick = ()=>{ state.selectedStylist = st.id; state.selectedSlot=null; updateBookingUI(); };
+    container.appendChild(btn);
+  });
+
+  const sel = $('stylistSelect');
+  sel.innerHTML = '';
+  stylists.forEach(s => {
+    const opt = document.createElement('option'); opt.value = s.id; opt.textContent = s.name;
+    if (state.selectedStylist===s.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderBookingSlots(){
+  const container = $('slots');
+  container.innerHTML = '';
+  const date = state.date;
+  slots.forEach(slot=>{
+    const disabled = isSlotUnavailable(date, state.selectedStylist, slot);
+    const btn = document.createElement('button');
+    btn.className = 'slot';
+    btn.style.padding='8px'; btn.style.borderRadius='8px'; btn.style.border='1px solid rgba(255,255,255,0.06)';
+    btn.style.background='transparent'; btn.style.color='white';
+    btn.textContent = slot;
+    if (disabled){ btn.style.opacity='0.45'; btn.style.textDecoration='line-through'; btn.disabled = true; }
+    if (state.selectedSlot === slot){ btn.style.background='white'; btn.style.color='var(--accent)'; btn.style.fontWeight='700'; }
+    btn.onclick = ()=>{
+      if (disabled) return;
+      state.selectedSlot = (state.selectedSlot === slot) ? null : slot;
+      updateBookingUI();
+      btn.animate([{ transform: 'scale(1.02)' }, { transform: 'scale(1)' }], { duration: 160 });
+    };
+    container.appendChild(btn);
+  });
+}
+
+function updateBookingSummary(){
+  $('s_name').textContent = state.name || '-';
+  $('s_phone').textContent = state.phone || '-';
+  $('s_date').textContent = state.date || '-';
+  $('s_time').textContent = state.selectedSlot || '-';
+  const sObj = servicesList.find(s=>s.id===state.selectedService);
+  $('s_service').textContent = sObj ? sObj.name : '-';
+  $('s_price').textContent = sObj ? `$${sObj.price}` : '-';
+  const sty = stylists.find(s=>s.id===state.selectedStylist);
+  $('s_stylist').textContent = sty ? sty.name : '-';
+  $('priceDisplay').textContent = sObj ? `$${sObj.price}` : '$0';
+  $('selectedSlotDisplay').textContent = state.selectedSlot || 'No slot';
+}
+
+function updateBookingUI(){
+  renderBookingServices(); renderBookingStylists(); renderBookingSlots(); updateBookingSummary();
+  $('serviceSelect').value = state.selectedService;
+  $('stylistSelect').value = state.selectedStylist;
+}
+
+/* validation & booking action */
+function validateBooking(){
+  if (!state.name.trim()) return 'Please enter your name.';
+  const digits = state.phone.replace(/\D/g,'');
+  if (!/^\d{7,15}$/.test(digits)) return 'Please enter a valid phone number (7-15 digits).';
+  if (!state.selectedSlot) return 'Please select a time slot.';
+  return null;
+}
+
+function sendBooking(){
+  const err = validateBooking();
+  if (err){ alert(err); return; }
+  const payload = {
+    name: state.name.trim(),
+    phone: state.phone.trim(),
+    date: state.date,
+    time: state.selectedSlot,
+    service: servicesList.find(s=>s.id===state.selectedService),
+    stylist: stylists.find(s=>s.id===state.selectedStylist),
+    notes: state.notes || '',
+    createdAt: new Date().toISOString()
+  };
+  console.log('BOOKING PAYLOAD:', payload);
+  $('confirmation').style.display = 'block';
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `booking_${payload.date}_${payload.time.replace(':','')}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* wiring */
+window.addEventListener('DOMContentLoaded', ()=>{
+  // hero slots
+  heroSlotsPopulate(slots);
+
+  // booking initial date
+  $('date').value = todayISO();
+  state.date = $('date').value;
+  $('todayLabel').textContent = new Date().toLocaleDateString();
+
+  // populate
+  updateBookingUI();
+
+  // inputs
+  $('date').addEventListener('change', (e)=>{ state.date = e.target.value; state.selectedSlot=null; updateBookingUI(); });
+  $('inputName').addEventListener('input', (e)=>{ state.name = e.target.value; updateBookingSummary(); });
+  $('inputPhone').addEventListener('input', (e)=>{ state.phone = e.target.value; updateBookingSummary(); });
+  $('notes').addEventListener('input', (e)=>{ state.notes = e.target.value; });
+
+  $('serviceSelect').addEventListener('change', (e)=>{ state.selectedService = e.target.value; state.selectedSlot=null; updateBookingUI(); });
+  $('stylistSelect').addEventListener('change', (e)=>{ state.selectedStylist = e.target.value; state.selectedSlot=null; updateBookingUI(); });
+
+  // buttons
+  document.getElementById('toFormBtnLeft').addEventListener('click', ()=>{ document.getElementById('detailsForm').scrollIntoView({behavior:'smooth'}); });
+  $('topBtn').addEventListener('click', ()=>{ window.scrollTo({top:0, behavior:'smooth'}); });
+  $('clearSlot').addEventListener('click', ()=>{ state.selectedSlot=null; updateBookingUI(); });
+
+  $('confirmBtn').addEventListener('click', (e)=>{ e.preventDefault(); state.name = $('inputName').value; state.phone = $('inputPhone').value; state.notes = $('notes').value; sendBooking(); });
+  $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetBookingForm(); });
+  $('closeConfirm').addEventListener('click', ()=>{ $('confirmation').style.display='none'; });
+
+  // small nav active change on scroll
+  const sections = ['home','about','services','booking','contact'];
+  window.addEventListener('scroll', ()=>{
+    const top = window.scrollY + 120;
+    for (let id of sections){
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      const offsetTop = window.scrollY + el.getBoundingClientRect().top;
+      if (offsetTop <= top && offsetTop + el.offsetHeight > top){
+        setActive(id); break;
+      }
+    }
+  });
+});
+
+/* reset */
+function resetBookingForm(){
+  state.name=''; state.phone=''; state.notes=''; state.selectedSlot=null;
+  state.selectedService = servicesList[0].id; state.selectedStylist = stylists[0].id;
+  $('inputName').value=''; $('inputPhone').value=''; $('notes').value='';
+  updateBookingUI();
+}
+/* keyboard */
+document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') { closeModal(); resetBookingForm(); } });
+</script>
+</body>
+</html>
