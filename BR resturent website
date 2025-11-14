@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EH Restaurant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="index.css">
+
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-md fixed w-full z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-red-600">EH Restaurant</h1>
+      <nav class="hidden md:flex space-x-6 font-medium">
+        <a href="#home" class="hover:text-red-600 transition">Home</a>
+        <a href="#menu" class="hover:text-red-600 transition">Menu</a>
+        <a href="#cart" class="hover:text-red-600 transition">Cart</a>
+        <a href="#location" class="hover:text-red-600 transition">Location</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="pt-20 h-[90vh] bg-cover bg-center flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092');">
+    <div class="bg-black bg-opacity-50 p-10 rounded-xl text-center text-white animate-fadeIn">
+      <h2 class="text-5xl font-bold mb-4">Welcome to EH Restaurant</h2>
+      <p class="text-lg mb-6">Authentic flavors. Fresh ingredients. Great vibes.</p>
+      <a href="#menu" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition">Explore Menu</a>
+    </div>
+  </section>
+
+  <!-- Menu Section -->
+  <section id="menu" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-8">Our Menu</h2>
+
+      <div class="flex flex-wrap justify-center gap-4 mb-10">
+        <button class="filter-btn bg-red-600 text-white px-4 py-2 rounded-md" data-category="all">All</button>
+        <button class="filter-btn bg-gray-300 px-4 py-2 rounded-md" data-category="veg">Veg</button>
+        <button class="filter-btn bg-gray-300 px-4 py-2 rounded-md" data-category="nonveg">Non-Veg</button>
+        <button class="filter-btn bg-gray-300 px-4 py-2 rounded-md" data-category="beverages">Beverages</button>
+      </div>
+
+      <div id="menu-items" class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <!-- Items from JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cart" class="py-16 container mx-auto px-6">
+    <h2 class="text-3xl font-bold text-center mb-8">Your Order</h2>
+    <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6">
+      <div id="cart-items"></div>
+      <hr class="my-4">
+      <div class="flex justify-between text-xl font-semibold">
+        <p>Total:</p>
+        <p id="total-price">₹0</p>
+      </div>
+      <button id="order-btn" class="mt-6 bg-red-600 text-white w-full py-3 rounded hover:bg-red-700 transition">
+        Place Order
+      </button>
+
+      <!-- Order Status -->
+      <div id="order-status" class="mt-6 text-center hidden">
+        <p class="font-semibold text-gray-700">Order Status:</p>
+        <p id="status-text" class="text-lg font-bold text-red-600 animate-pulse">Processing...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Location -->
+  <section id="location" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-6">Find Us</h2>
+      <p class="mb-6 text-gray-600">EH Restaurant, Gomti Nagar, Lucknow, Uttar Pradesh</p>
+      <div class="flex justify-center">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.8478159120564!2d80.98964227503104!3d26.84890367668912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3999562a5c6826fb%3A0x32c1d39cf1d8f5a!2sGomti%20Nagar%2C%20Lucknow%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1731402012345!5m2!1sen!2sin" 
+          width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-gray-900 text-white text-center py-6">
+    <p>© 2025 EH Restaurant | All Rights Reserved</p>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>
