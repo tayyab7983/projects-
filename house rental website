@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DarkHouse — House Rentals</title>
+  <meta name="description" content="Dark themed house rental frontend (static). 20+ sample listings, details, login/signup placeholders for Django backend integration." />
+  <style>
+    :root{
+      --bg:#0f1115; --card:#14161b; --muted:#9aa1ab; --accent:#7c4dff; --glass: rgba(255,255,255,0.03);
+      --radius:12px; --maxw:1200px;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b0c10 0%, #0f1115 100%);color:#e6eef8;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+    .container{width:95%;max-width:var(--maxw);}
+    header{width:100%;padding:18px 0;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:46px;height:46px;background:linear-gradient(135deg,var(--accent),#3ddcff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#05060a}
+    nav{display:flex;gap:12px;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px;transition:all .18s}
+    nav a:hover{color:#fff;transform:translateY(-3px);}
+    .cta{background:linear-gradient(90deg,var(--accent),#3ddcff);padding:8px 14px;border-radius:12px;color:#05060a;font-weight:600;box-shadow:0 6px 20px rgba(124,77,255,0.12)}
+
+    /* hero */
+    .hero{width:100%;display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:center;padding:28px 0}
+    .hero-card{background:var(--card);border-radius:18px;padding:26px;box-shadow:0 8px 40px rgba(2,6,23,0.6);backdrop-filter:blur(6px)}
+    .search{display:flex;gap:10px}
+    .search input, .search select{flex:1;padding:12px 14px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:inherit}
+    .filters{display:flex;gap:8px;margin-top:12px}
+    .filters button{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);cursor:pointer}
+
+    /* cards grid */
+    .list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);transition:transform .24s, box-shadow .24s}
+    .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.65)}
+    .card .thumb{height:160px;background:#0d0f13;display:block}
+    .card .content{padding:12px}
+    .title{font-weight:700;margin:0 0 6px 0}
+    .meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .tags{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{font-size:12px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02);color:var(--muted)}
+
+    /* detail modal */
+    .modal-bg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85));z-index:40}
+    .modal{width:92%;max-width:900px;background:var(--card);border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .modal img{width:100%;height:260px;object-fit:cover;border-radius:10px}
+    .close{position:absolute;right:18px;top:18px;background:transparent;border:0;color:var(--muted);font-size:18px;cursor:pointer}
+
+    /* footer */
+    footer{width:100%;padding:34px 0;color:var(--muted)}
+
+    /* small screens */
+    @media (max-width:880px){
+      .hero{grid-template-columns:1fr;}
+      .modal{grid-template-columns:1fr}
+    }
+
+    /* small UI */
+    .muted{color:var(--muted)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:var(--accent);color:#05060a;font-weight:600;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px}
+
+    /* login/signup modal */
+    .auth-form{display:flex;flex-direction:column;gap:10px}
+    input[type=text], input[type=email], input[type=password], textarea{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+
+    /* subtle animations */
+    .fade-up{transform:translateY(9px);opacity:0;animation:fadeUp .6s forwards}
+    @keyframes fadeUp{to{transform:none;opacity:1}}
+
+    .searchbar{display:flex;align-items:center;gap:8px}
+    .map-box{height:220px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">DH</div>
+        <div>
+          <div style="font-weight:700">DarkHouse</div>
+          <div style="font-size:12px;color:var(--muted)">Trusted house rentals</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#office">Office</a>
+        <a href="#contact">Contact</a>
+        <a class="cta" id="openLogin">Login / Signup</a>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-card">
+        <h2 style="margin:0">Find your next home</h2>
+        <p class="muted">Browse 20+ verified rental houses. Filter by area, price & rooms.</p>
+
+        <div class="search fade-up" style="margin-top:14px">
+          <div style="flex:1">
+            <input id="q" placeholder="Search city, locality, landmark..." />
+          </div>
+          <select id="beds">
+            <option value="">Any beds</option>
+            <option>1 BHK</option>
+            <option>2 BHK</option>
+            <option>3 BHK</option>
+            <option>4+ BHK</option>
+          </select>
+          <button class="btn" id="searchBtn">Search</button>
+        </div>
+
+        <div class="filters">
+          <button data-filter="all">All</button>
+          <button data-filter="furnished">Furnished</button>
+          <button data-filter="near-metro">Near Metro</button>
+          <button data-filter="pet">Pet friendly</button>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:12px;align-items:center">
+          <div class="muted">Showing <span id="count">0</span> houses</div>
+          <div style="margin-left:auto" class="muted">Dark theme • Smooth hovers</div>
+        </div>
+
+      </div>
+
+      <aside>
+        <div class="hero-card">
+          <h4 style="margin:0">Office Location</h4>
+          <p class="muted" style="font-size:13px">Drop by our office or contact us</p>
+          <div class="map-box" style="margin-top:10px">
+            <!-- placeholder static map image from picsum or user will replace with google maps iframe -->
+            <img src="https://picsum.photos/seed/office/800/450" style="width:100%;height:100%;object-fit:cover" alt="map" />
+          </div>
+          <div style="margin-top:10px;font-size:13px" class="muted">
+            DarkHouse Pvt. Ltd.<br/>123, Lakeside Avenue, City
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <a href="#contact" class="ghost">Contact Us</a>
+            <a class="ghost" id="viewAbout">About</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- LISTINGS -->
+    <section id="listings">
+      <div id="list" class="list"></div>
+    </section>
+
+    <!-- MODAL detail -->
+    <div id="modalBg" class="modal-bg">
+      <div class="modal">
+        <button class="close" id="closeModal">✕</button>
+        <div style="padding-right:6px">
+          <img id="modalImg" src="https://picsum.photos/seed/1/900/500" alt="house" />
+          <h3 id="modalTitle" style="margin-top:10px">House title</h3>
+          <div id="modalDesc" class="muted">Large description here</div>
+        </div>
+        <aside style="padding-left:6px">
+          <h4>Details</h4>
+          <div id="modalDetails" class="muted"></div>
+          <div style="margin-top:12px">
+            <button class="btn">Contact Owner</button>
+            <button class="ghost" style="margin-left:8px">Save</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- LOGIN / SIGNUP MODAL -->
+    <div id="authBg" class="modal-bg">
+      <div class="modal" style="max-width:700px;grid-template-columns:1fr">
+        <button class="close" id="closeAuth">✕</button>
+        <div style="padding:16px">
+          <h3 id="authTitle">Login</h3>
+          <form id="authForm" class="auth-form">
+            <input id="email" type="email" placeholder="Email" required />
+            <input id="pwd" type="password" placeholder="Password" required />
+            <div style="display:flex;gap:8px"><button class="btn" type="submit">Submit</button><button type="button" class="ghost" id="switchAuth">Switch to Signup</button></div>
+            <div style="margin-top:8px;font-size:13px;color:var(--muted)">Note: This form posts to <code>/api/auth/login</code> or <code>/api/auth/signup</code>. Connect with your Django backend.</div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <footer style="margin-top:28px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700">DarkHouse</div>
+          <div class="muted" style="font-size:13px">© " + new Date().getFullYear() + " DarkHouse</div>
+        </div>
+        <div class="muted">Made with ♥ — Modern UI • Django-ready API</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ---------- sample dataset (24 houses). Replace with /api/houses from Django backend ----------
+    const houses = [
+      {id:1,title:"Cozy 1 BHK near Lake",city:"Riverside",area:"45 sqm",price:"₹8,500/mo",beds:1,furnished:true,metro:false,pet:false,desc:"Bright 1BHK with balcony and lake view.",img:"https://picsum.photos/seed/house1/800/600"},
+      {id:2,title:"Spacious 2 BHK in Central",city:"Midtown",area:"85 sqm",price:"₹18,000/mo",beds:2,furnished:false,metro:true,pet:true,desc:"Convenient central location, walk to market.",img:"https://picsum.photos/seed/house2/800/600"},
+      {id:3,title:"Modern Studio Apartment",city:"Downtown",area:"32 sqm",price:"₹7,200/mo",beds:0,furnished:true,metro:true,pet:false,desc:"Compact studio ideal for single professional.",img:"https://picsum.photos/seed/house3/800/600"},
+      {id:4,title:"3 BHK Family Home",city:"Greenfield",area:"120 sqm",price:"₹28,000/mo",beds:3,furnished:false,metro:false,pet:true,desc:"Large family apartment with 2 balconies.",img:"https://picsum.photos/seed/house4/800/600"},
+      {id:5,title:"Penthouse Loft",city:"Uptown",area:"150 sqm",price:"₹55,000/mo",beds:4,furnished:true,metro:true,pet:false,desc:"Luxury penthouse with terrace.",img:"https://picsum.photos/seed/house5/800/600"},
+      {id:6,title:"Compact 1 BHK",city:"Old Town",area:"40 sqm",price:"₹6,800/mo",beds:1,furnished:false,metro:false,pet:false,desc:"Budget-friendly with good ventilation.",img:"https://picsum.photos/seed/house6/800/600"},
+      {id:7,title:"Garden View 2 BHK",city:"Lakeside",area:"90 sqm",price:"₹20,000/mo",beds:2,furnished:true,metro:false,pet:true,desc:"Nice garden access and parking.",img:"https://picsum.photos/seed/house7/800/600"},
+      {id:8,title:"Luxury 3 BHK",city:"Central Park",area:"130 sqm",price:"₹42,000/mo",beds:3,furnished:true,metro:true,pet:false,desc:"Premium fittings and club access.",img:"https://picsum.photos/seed/house8/800/600"},
+      {id:9,title:"Artist's Loft",city:"Old Quarter",area:"75 sqm",price:"₹16,500/mo",beds:2,furnished:false,metro:false,pet:true,desc:"High ceilings, creative space.",img:"https://picsum.photos/seed/house9/800/600"},
+      {id:10,title:"Economy Studio",city:"Suburbia",area:"28 sqm",price:"₹5,900/mo",beds:0,furnished:false,metro:false,pet:false,desc:"Simple and affordable.",img:"https://picsum.photos/seed/house10/800/600"},
+      {id:11,title:"Seaside 2 BHK",city:"Harbor",area:"95 sqm",price:"₹19,500/mo",beds:2,furnished:true,metro:false,pet:true,desc:"Sea breeze and balcony.",img:"https://picsum.photos/seed/house11/800/600"},
+      {id:12,title:"Campus Area 1 BHK",city:"Westend",area:"48 sqm",price:"₹8,200/mo",beds:1,furnished:false,metro:true,pet:false,desc:"Close to college and cafes.",img:"https://picsum.photos/seed/house12/800/600"},
+      {id:13,title:"Rooftop Studio",city:"Skyline",area:"35 sqm",price:"₹9,500/mo",beds:0,furnished:true,metro:true,pet:false,desc:"Rooftop access and views.",img:"https://picsum.photos/seed/house13/800/600"},
+      {id:14,title:"Family Villa",city:"Hillside",area:"220 sqm",price:"₹65,000/mo",beds:5,furnished:false,metro:false,pet:true,desc:"Standalone villa with garden.",img:"https://picsum.photos/seed/house14/800/600"},
+      {id:15,title:"Studio near IT Park",city:"TechCity",area:"34 sqm",price:"₹11,000/mo",beds:0,furnished:true,metro:true,pet:false,desc:"Perfect for IT professionals.",img:"https://picsum.photos/seed/house15/800/600"},
+      {id:16,title:"Comfort 2 BHK",city:"Elm Street",area:"82 sqm",price:"₹17,800/mo",beds:2,furnished:false,metro:false,pet:false,desc:"Calm neighborhood and parking.",img:"https://picsum.photos/seed/house16/800/600"},
+      {id:17,title:"Designer 1 BHK",city:"Avenue",area:"50 sqm",price:"₹12,000/mo",beds:1,furnished:true,metro:true,pet:false,desc:"Designer interiors and appliances.",img:"https://picsum.photos/seed/house17/800/600"},
+      {id:18,title:"Budget 2 BHK",city:"Market Lane",area:"70 sqm",price:"₹13,500/mo",beds:2,furnished:false,metro:false,pet:false,desc:"Close to market and transport.",img:"https://picsum.photos/seed/house18/800/600"},
+      {id:19,title:"Countryside Cottage",city:"Meadow",area:"160 sqm",price:"₹30,000/mo",beds:3,furnished:false,metro:false,pet:true,desc:"Peaceful cottage away from city.",img:"https://picsum.photos/seed/house19/800/600"},
+      {id:20,title:"Highrise 3 BHK",city:"Skytower",area:"110 sqm",price:"₹36,000/mo",beds:3,furnished:true,metro:true,pet:false,desc:"Great skyline views and amenities.",img:"https://picsum.photos/seed/house20/800/600"},
+      {id:21,title:"Compact 1 BHK Near Mall",city:"Mallroad",area:"46 sqm",price:"₹9,000/mo",beds:1,furnished:false,metro:true,pet:false,desc:"Walk to mall and restaurants.",img:"https://picsum.photos/seed/house21/800/600"},
+      {id:22,title:"Shared Accommodation 2 BHK",city:"StudentZone",area:"95 sqm",price:"₹6,500/mo (per person)",beds:2,furnished:false,metro:false,pet:false,desc:"Affordable shared rooms.",img:"https://picsum.photos/seed/house22/800/600"},
+      {id:23,title:"Designer Duplex",city:"Ridge",area:"140 sqm",price:"₹48,000/mo",beds:3,furnished:true,metro:false,pet:false,desc:"Duplex with modern fittings.",img:"https://picsum.photos/seed/house23/800/600"},
+      {id:24,title:"Studio with Workspace",city:"CreativeHub",area:"38 sqm",price:"₹10,500/mo",beds:0,furnished:true,metro:true,pet:false,desc:"Workspace-friendly studio.",img:"https://picsum.photos/seed/house24/800/600"}
+    ];
+
+    // ---------- rendering & UI logic ----------
+    const listEl = document.getElementById('list');
+    const countEl = document.getElementById('count');
+
+    function renderList(data){
+      listEl.innerHTML = '';
+      countEl.textContent = data.length;
+      data.forEach(h => {
+        const div = document.createElement('div');
+        div.className='card';
+        div.innerHTML = `
+          <div class="thumb"><img src="${h.img}" style="width:100%;height:100%;object-fit:cover" alt="${h.title}"/></div>
+          <div class="content">
+            <h4 class="title">${h.title}</h4>
+            <div class="meta">${h.city} • ${h.area} • ${h.price}</div>
+            <div class="tags">
+              <div class="tag">${h.beds ? h.beds+' BHK' : 'Studio'}</div>
+              ${h.furnished ? '<div class="tag">Furnished</div>' : ''}
+              ${h.metro ? '<div class="tag">Near Metro</div>' : ''}
+              ${h.pet ? '<div class="tag">Pet friendly</div>' : ''}
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+              <button class="btn" data-id="${h.id}">View</button>
+              <button class="ghost" onclick="event.stopPropagation()">Save</button>
+            </div>
+          </div>`;
+        listEl.appendChild(div);
+        div.querySelector('.btn').addEventListener('click',()=>openDetail(h.id));
+      });
+    }
+
+    function openDetail(id){
+      const h = houses.find(x=>x.id===id);
+      if(!h) return;
+      document.getElementById('modalImg').src = h.img;
+      document.getElementById('modalTitle').textContent = h.title;
+      document.getElementById('modalDesc').textContent = h.desc;
+      const det = document.getElementById('modalDetails');
+      det.innerHTML = `City: ${h.city}<br/>Area: ${h.area}<br/>Price: ${h.price}<br/>Beds: ${h.beds ? h.beds : 'Studio'}`;
+      document.getElementById('modalBg').style.display='flex';
+    }
+
+    document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('modalBg').style.display='none');
+    document.getElementById('openLogin').addEventListener('click',()=>document.getElementById('authBg').style.display='flex');
+    document.getElementById('closeAuth').addEventListener('click',()=>document.getElementById('authBg').style.display='none');
+    document.getElementById('switchAuth').addEventListener('click',()=>{
+      const t = document.getElementById('authTitle');
+      if(t.textContent==='Login'){ t.textContent='Signup'; document.getElementById('authForm').action='/api/auth/signup'; } else { t.textContent='Login'; document.getElementById('authForm').action='/api/auth/login'; }
+    });
+
+    // search & filters
+    document.getElementById('searchBtn').addEventListener('click',()=>{
+      const q = document.getElementById('q').value.toLowerCase();
+      const beds = document.getElementById('beds').value;
+      const out = houses.filter(h=>{
+        if(q && !(h.title.toLowerCase().includes(q) || h.city.toLowerCase().includes(q))) return false;
+        if(beds && !(`${h.beds} BHK`===beds)) return false;
+        return true;
+      });
+      renderList(out);
+    });
+
+    document.querySelectorAll('.filters button').forEach(btn=>btn.addEventListener('click',()=>{
+      const f = btn.dataset.filter;
+      let out = houses;
+      if(f==='furnished') out = houses.filter(h=>h.furnished);
+      if(f==='near-metro') out = houses.filter(h=>h.metro);
+      if(f==='pet') out = houses.filter(h=>h.pet);
+      renderList(out);
+    }));
+
+    // auth form submission (placeholder) - sends to /api/auth/login or signup
+    document.getElementById('authForm').addEventListener('submit',async function(e){
+      e.preventDefault();
+      const action = this.action || '/api/auth/login';
+      const payload = {email:document.getElementById('email').value,password:document.getElementById('pwd').value};
+      try{
+        // developer: connect to your Django backend here. Example:
+        // const res = await fetch(action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        // const data = await res.json();
+        // handle token, redirect etc.
+        alert('This demo frontend will POST to: ' + action + '\nPayload: ' + JSON.stringify(payload));
+        document.getElementById('authBg').style.display='none';
+      }catch(err){console.error(err);alert('Auth failed');}
+    });
+
+    // initial render
+    renderList(houses);
+
+    // optional: try loading from API if available
+    (async ()=>{
+      try{
+        const r = await fetch('/api/houses');
+        if(r.ok){
+          const data = await r.json();
+          if(Array.isArray(data) && data.length) renderList(data);
+        }
+      }catch(e){/* ignore - dev will provide backend */}
+    })();
+
+  </script>
+</body>
+</html>
